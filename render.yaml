@@ -1,0 +1,7 @@
+services:
+  - type: web
+    runtime: static
+    name: cooperabaete-gaps
+    branch: main
+    buildCommand: echo 'Site estatico pronto'
+    staticPublishPath: ./public
