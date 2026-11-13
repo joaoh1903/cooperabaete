@@ -60,6 +60,11 @@ document.querySelector('#clear-filters').addEventListener('click', () => {
  applyFilters();
 });
 
+function formatCompletion(value) {
+ const text = String(value ?? '').trim();
+ return /^\d{1,3}$/.test(text) ? text + '%' : text;
+}
+
 function render(row) {
  const tr = body.insertRow();
  renderedRows.push({row, tr});
@@ -75,7 +80,10 @@ function render(row) {
    if (key === 'completion') field.placeholder = '0–100';
   }
   field.setAttribute('aria-label', label + ' · atividade ' + row.id);
-  field.value = row[key];
+  field.value = key === 'completion' ? formatCompletion(row[key]) : row[key];
+  if (key === 'completion') {
+   field.addEventListener('blur', () => { field.value = formatCompletion(field.value); });
+  }
   cell.append(field);
   return field;
  });
@@ -108,7 +116,10 @@ function render(row) {
    if (result.error) throw new Error(result.error);
    Object.assign(row, result);
    refreshOwners();
-   controls.forEach((field, i) => field.value = result[columns[i][0]]);
+   controls.forEach((field, i) => {
+    const key = columns[i][0];
+    field.value = key === 'completion' ? formatCompletion(result[key]) : result[key];
+   });
    message.textContent = 'Salvo.';
   } catch (error) {
    message.textContent = error.message === 'Failed to fetch' ? 'Falha de conexão. Tente novamente.' : error.message;
